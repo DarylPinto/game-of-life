@@ -35,8 +35,11 @@ impl World {
                 let neighbor_indicies = utils::get_neighbor_indicies(i, GRID_WIDTH, GRID_HEIGHT);
 
                 if is_alive {
-                    for j in neighbor_indicies {
-                        self.grid[j].increment_living_neighbor_count();
+                    for neighbor_index in neighbor_indicies.list.iter() {
+                        match *neighbor_index {
+                            Some(index) => self.grid[index].increment_living_neighbor_count(),
+                            None => (),
+                        }
                     }
                 }
             }

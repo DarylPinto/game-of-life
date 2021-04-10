@@ -16,15 +16,14 @@ const INITIAL_LIVING_CELL_COUNT: usize = 6000;
 const TICK_RATE_MS: u64 = 16;
 const GUI_SCALE: Scale = Scale::X4;
 
-fn main() { 
+fn main() {
     let mut world = World::new();
 
     let mut initial_living_cell_coords = [0; INITIAL_LIVING_CELL_COUNT];
 
     let mut rng = rand::thread_rng();
-    for i in 0..INITIAL_LIVING_CELL_COUNT {
-        let coord = rng.gen_range(0..GRID_WIDTH * GRID_HEIGHT);
-        initial_living_cell_coords[i] = coord;
+    for coord in initial_living_cell_coords.iter_mut() {
+        *coord = rng.gen_range(0..GRID_WIDTH * GRID_HEIGHT);
     }
 
     world.populate(&initial_living_cell_coords);
