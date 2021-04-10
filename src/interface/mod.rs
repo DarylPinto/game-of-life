@@ -23,10 +23,10 @@ pub fn render(world: &mut World) {
     window.limit_update_rate(Some(std::time::Duration::from_millis(TICK_RATE_MS)));
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
-        for (pixel, cell) in buffer.iter_mut().zip(world.grid.iter()) {
+        for (i, (pixel, cell)) in buffer.iter_mut().zip(world.grid.iter()).enumerate() {
             match cell.is_alive() {
-                true => *pixel = 0x00_BBBBBB,
-                false => *pixel = 0x00_222222,
+                true => *pixel = u32::MAX - (i as u32),
+                false => *pixel = 0x00_212121,
             }
         }
 
