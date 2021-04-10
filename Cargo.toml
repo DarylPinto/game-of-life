@@ -1,8 +1,24 @@
 [package]
 name = "game-of-life"
+description = "Cellular automaton"
 version = "0.1.0"
 authors = ["Daryl Pinto <daryl.j.pinto@gmail.com>"]
 edition = "2018"
+
+[package.metadata.bundle]
+name = "Game of Life"
+identifier = "com.darylpinto.gameoflife"
+icon = ["assets/icons/512x512@2x.png"]
+version = "1.0.0"
+copyright = "Copyright (c) Daryl Pinto 2021. All rights reserved."
+category = "Simulation Game"
+short_description = "Game of Life"
+long_description = """
+The Game of Life, also known simply as Life, is a cellular automaton
+devised by the British mathematician John Horton Conway in 1970.
+It is a zero-player game, meaning that its evolution is determined
+by its initial state, requiring no further input.
+"""
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
