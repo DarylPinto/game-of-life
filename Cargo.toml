@@ -4,11 +4,15 @@ description = "Cellular automaton"
 version = "0.1.0"
 authors = ["Daryl Pinto <daryl.j.pinto@gmail.com>"]
 edition = "2018"
+build = "build.rs"
+
+[build-dependencies]
+winres = "0.1"
 
 [package.metadata.bundle]
 name = "Game of Life"
 identifier = "com.darylpinto.gameoflife"
-icon = ["assets/icons/512x512@2x.png"]
+icon = ["512x512@2x.ico"]
 version = "1.0.0"
 copyright = "Copyright (c) Daryl Pinto 2021. All rights reserved."
 category = "Simulation Game"
