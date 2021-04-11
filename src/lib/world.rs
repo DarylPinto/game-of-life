@@ -6,13 +6,13 @@ use rand::prelude::*;
 
 #[derive(Debug)]
 pub struct World {
-    pub grid: [Cell; GRID_WIDTH * GRID_HEIGHT],
+    pub grid: Vec<Cell>,
 }
 
 impl World {
     pub fn new() -> Self {
         Self {
-            grid: [Cell::default(); GRID_WIDTH * GRID_HEIGHT],
+            grid: vec![Cell::default(); GRID_WIDTH * GRID_HEIGHT],
         }
     }
 
