@@ -64,3 +64,39 @@ impl fmt::Debug for Cell {
             .finish()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_cell() {
+        let mut cell = Cell::default();
+        assert_eq!(cell.state, 0);
+
+        cell.spawn();
+        assert_eq!(cell.state, 1);
+
+        for _ in 0..3 {
+            cell.increment_living_neighbor_count();
+        }
+        assert_eq!(cell.state, 0b00000111);
+
+        cell.die();
+        assert_eq!(cell.state, 0b00000110);
+
+        for _ in 0..5 {
+            cell.increment_living_neighbor_count();
+        }
+        assert_eq!(cell.state, 0b00010000);
+
+        cell.spawn();
+        assert_eq!(cell.state, 0b00010001);
+
+        assert_eq!(cell.is_alive(), true);
+        assert_eq!(cell.get_living_neighbor_count(), 8);
+
+        cell.reset_neighbor_count();
+        assert_eq!(cell.state, 1);
+    }
+}

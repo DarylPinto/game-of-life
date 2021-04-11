@@ -49,12 +49,10 @@ impl World {
             let living_neighbors = self.grid[i].get_living_neighbor_count();
 
             // Update living state based on neighbors
-            if is_alive && (living_neighbors == 2 || living_neighbors == 3) {
-                self.grid[i].spawn();
+            if is_alive && (living_neighbors < 2 || living_neighbors > 3) {
+                self.grid[i].die();
             } else if !is_alive && living_neighbors == 3 {
                 self.grid[i].spawn();
-            } else {
-                self.grid[i].die();
             }
 
             // Set the neighbor count back to 0 for each cell
