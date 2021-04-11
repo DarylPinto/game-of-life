@@ -13,7 +13,7 @@ const GRID_HEIGHT: usize = 200;
 
 const INITIAL_LIVING_CELL_COUNT: usize = 6000;
 
-const TICK_RATE_MS: u64 = 16;
+const TICK_RATE_MS: u64 = 50;
 const GUI_SCALE: Scale = Scale::X4;
 
 fn main() {

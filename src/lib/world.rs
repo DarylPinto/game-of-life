@@ -27,11 +27,10 @@ impl World {
     // All other live cells die in the next generation. Similarly, all other dead cells stay dead.
     pub fn tick(&mut self) {
         for i in 0..self.grid.len() {
-            let cell = self.grid[i];
-            let is_alive = cell.is_alive();
+            let is_alive = self.grid[i].is_alive();
 
             // Update neighbor count for each cell
-            if cell.state > 0 {
+            if self.grid[i].state > 0 {
                 let neighbor_indicies = utils::get_neighbor_indicies(i, GRID_WIDTH, GRID_HEIGHT);
 
                 if is_alive {
@@ -46,9 +45,8 @@ impl World {
         }
 
         for i in 0..self.grid.len() {
-            let cell = self.grid[i];
-            let is_alive = cell.is_alive();
-            let living_neighbors = cell.get_living_neighbor_count();
+            let is_alive = self.grid[i].is_alive();
+            let living_neighbors = self.grid[i].get_living_neighbor_count();
 
             // Update living state based on neighbors
             if is_alive && (living_neighbors == 2 || living_neighbors == 3) {

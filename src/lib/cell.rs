@@ -2,13 +2,11 @@ use std::fmt;
 
 // Cell "state" byte:
 // [0][0][0][0] [0][0][0][0]
-//                        ^-- this bit determines if the cell is alive
-//          |_________|---------- these 4 bits determine how many living neighbors the cell has (from 0 to 8)
+//                        |-- this bit determines if the cell is alive
+//           |_________|---------- these 4 bits determine how many living neighbors the cell has (from 0 to 8)
 
-/**
- The cell is the most fundemental structure in the game of life.
- It's living state and neighbor count is contained in just 1 byte.
-*/
+//  The cell is the most fundemental structure in the game of life.
+//  It's living state and neighbor count is contained in just 1 byte.
 #[derive(Clone, Copy)]
 pub struct Cell {
     pub state: u8,
@@ -33,11 +31,11 @@ impl Cell {
     }
 
     pub fn spawn(&mut self) {
-        self.state = (self.get_living_neighbor_count() << 1) + 1;
+        self.state = self.state | 1;
     }
 
     pub fn die(&mut self) {
-        self.state = self.get_living_neighbor_count() << 1;
+        self.state = self.state & 0;
     }
 
     pub fn increment_living_neighbor_count(&mut self) {
@@ -46,6 +44,7 @@ impl Cell {
         self.state = ((count + 1) << 1) + lsb;
     }
 
+    // Set neighbor count to 0
     pub fn reset_neighbor_count(&mut self) {
         self.state = self.state & 1;
     }

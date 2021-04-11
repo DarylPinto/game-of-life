@@ -15,7 +15,7 @@ impl NeighborIndexList {
                     self.list[i] = Some(to_insert);
                     return;
                 }
-                _ => (),
+                Some(_) => (),
             }
         }
         panic!("Cannot insert more than 8 values into NeighborIndexList");
