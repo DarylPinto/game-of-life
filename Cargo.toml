@@ -1,7 +1,7 @@
 [package]
 name = "game-of-life"
-description = "Cellular automaton"
-version = "0.1.0"
+description = "Game of Life"
+version = "1.0.1"
 authors = ["Daryl Pinto <daryl.j.pinto@gmail.com>"]
 edition = "2018"
 build = "build.rs"
@@ -13,7 +13,7 @@ winres = "0.1"
 name = "Game of Life"
 identifier = "com.darylpinto.gameoflife"
 icon = ["512x512@2x.ico"]
-version = "1.0.0"
+version = "1.0.1"
 copyright = "Copyright (c) Daryl Pinto 2021. All rights reserved."
 category = "Simulation Game"
 short_description = "Game of Life"
