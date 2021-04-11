@@ -2,7 +2,7 @@ use crate::lib::Cell;
 use crate::utils;
 use crate::GRID_HEIGHT;
 use crate::GRID_WIDTH;
-use crate::INITIAL_LIVING_CELL_COUNT;
+use rand::prelude::*;
 
 #[derive(Debug)]
 pub struct World {
@@ -16,9 +16,15 @@ impl World {
         }
     }
 
-    pub fn populate(&mut self, cell_coords: &[usize; INITIAL_LIVING_CELL_COUNT]) {
-        for coord in cell_coords {
-            self.grid[*coord].spawn();
+    pub fn populate_randomly(&mut self, chance_of_life: f32) {
+        let mut rng = thread_rng();
+        let threshhold = (u8::MAX as f32 * chance_of_life) as u8;
+
+        for cell in self.grid.iter_mut() {
+            let roll: u8 = rng.gen();
+            if roll < threshhold {
+                cell.spawn();
+            }
         }
     }
 
