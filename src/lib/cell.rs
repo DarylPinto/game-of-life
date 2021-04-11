@@ -35,7 +35,7 @@ impl Cell {
     }
 
     pub fn die(&mut self) {
-        self.state = self.state & 0;
+        self.state = self.state & 0b11111110;
     }
 
     pub fn increment_living_neighbor_count(&mut self) {
