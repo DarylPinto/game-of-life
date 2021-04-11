@@ -1,0 +1,67 @@
+name: Tagged Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-windows:
+
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Run tests
+        run: cargo test --verbose
+
+      - name: Build for Release
+        run: cargo build --release
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+
+        with:
+          name: game-of-life-windows
+          path: target/release/game-of-life.exe
+
+  build-mac-and-release:
+
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Run tests
+        run: cargo test --verbose
+
+      - name: Build for Release
+        run: |
+          cargo install cargo-bundle
+          cargo bundle --release
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: game-of-life-windows
+
+      - name: Package
+        run: |
+          mv "target/release/bundle/osx/Game of Life.app" "Game of Life.app"
+          tar cf "GameOfLife-MacOS.zip" "Game of Life.app"
+          tar cf "GameOfLife-Win64.zip" "game-of-life.exe"
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            GameOfLife-Win64.zip
+            GameOfLife-MacOS.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
