@@ -9,6 +9,9 @@ build = "build.rs"
 [build-dependencies]
 winres = "0.1"
 
+[profile.dev]
+opt-level = 3
+
 [package.metadata.bundle]
 name = "Game of Life"
 identifier = "com.darylpinto.gameoflife"
@@ -29,3 +32,4 @@ by its initial state, requiring no further input.
 [dependencies]
 rand = "0.8.3"
 minifb = "0.19.3"
+ca-formats = "0.2.3"

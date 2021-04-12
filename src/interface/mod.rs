@@ -17,7 +17,8 @@ pub fn render(world: &mut World) -> Result<(), Box<dyn Error>> {
 
     let mut window = Window::new("Game of Life", GRID_WIDTH, GRID_HEIGHT, options)?;
 
-    window.limit_update_rate(Some(std::time::Duration::from_millis(TICK_RATE_MS)));
+    // window.limit_update_rate(Some(std::time::Duration::from_millis(TICK_RATE_MS)));
+    window.limit_update_rate(None);
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         for y in 0..GRID_HEIGHT {
