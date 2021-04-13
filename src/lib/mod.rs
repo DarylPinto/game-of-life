@@ -1,7 +1,7 @@
 mod cell;
-mod neighbor_list_index;
+mod neighbor_position_list;
 mod world;
 
 pub use cell::*;
-pub use neighbor_list_index::*;
+pub use neighbor_position_list::*;
 pub use world::*;
