@@ -5,7 +5,7 @@ mod utils;
 
 use lib::World;
 use minifb::Scale;
-use minifb::{Key, Menu, Window, WindowOptions};
+use minifb::{Key, KeyRepeat, Menu, MouseButton, MouseMode, Window, WindowOptions};
 use std::error::Error;
 
 // Configuration
@@ -53,11 +53,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     window.limit_update_rate(Some(std::time::Duration::from_millis(TICK_RATE_MS)));
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
+        // Draw and advance forward in time
         utils::draw(&mut window, &mut buffer, &world)?;
-
         world.tick();
 
+        // Menu handler
         window.is_menu_pressed().map(|menu_id| {
+            world.time_stopped = false;
+
             if menu_id == 0 {
                 world.populate_randomly(CHANCE_OF_LIFE);
                 return;
@@ -74,6 +77,20 @@ fn main() -> Result<(), Box<dyn Error>> {
                 _ => (),
             };
         });
+
+        // Allow pausing time with spacebar
+        if window.is_key_pressed(Key::Space, KeyRepeat::No) {
+            world.time_stopped = !world.time_stopped;
+        }
+
+        // Allow drawing with the mouse if time is paused
+        if world.time_stopped {
+            window.get_mouse_pos(MouseMode::Discard).map(|(x, y)| {
+                if window.get_mouse_down(MouseButton::Left) {
+                    world.grid[y as usize][x as usize].spawn();
+                }
+            });
+        }
     }
 
     Ok(())

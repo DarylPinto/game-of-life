@@ -10,12 +10,14 @@ use std::error::Error;
 #[derive(Debug)]
 pub struct World {
     pub grid: Vec<Vec<Cell>>,
+    pub time_stopped: bool,
 }
 
 impl World {
     pub fn new() -> Self {
         Self {
             grid: vec![vec![Cell::default(); GRID_WIDTH]; GRID_HEIGHT],
+            time_stopped: false,
         }
     }
 
@@ -62,6 +64,10 @@ impl World {
     }
 
     pub fn tick(&mut self) {
+        if self.time_stopped {
+            return;
+        }
+
         // First pass, update neighbor count for every cell
         for i in 0..self.grid.len() {
             for j in 0..self.grid[i].len() {
