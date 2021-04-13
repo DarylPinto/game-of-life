@@ -6,13 +6,13 @@ use rand::prelude::*;
 
 #[derive(Debug)]
 pub struct World {
-    pub grid: Vec<Cell>,
+    pub grid: Vec<Vec<Cell>>,
 }
 
 impl World {
     pub fn new() -> Self {
         Self {
-            grid: vec![Cell::default(); GRID_WIDTH * GRID_HEIGHT],
+            grid: vec![vec![Cell::default(); GRID_WIDTH]; GRID_HEIGHT],
         }
     }
 
@@ -20,10 +20,12 @@ impl World {
         let mut rng = thread_rng();
         let threshhold = (u8::MAX as f32 * chance_of_life) as u8;
 
-        for cell in self.grid.iter_mut() {
-            let roll: u8 = rng.gen();
-            if roll < threshhold {
-                cell.spawn();
+        for row in self.grid.iter_mut() {
+            for cell in row.iter_mut() {
+                let roll: u8 = rng.gen();
+                if roll < threshhold {
+                    cell.spawn();
+                }
             }
         }
     }
@@ -31,23 +33,26 @@ impl World {
     pub fn tick(&mut self) {
         // First pass, update neighbor count for every cell
         for i in 0..self.grid.len() {
-            // If the cell is dead and has no neighors,
-            // don't bother doing anything with it
-            if self.grid[i].state == 0 {
-                continue;
-            }
+            for j in 0..self.grid[i].len() {
+                // If the cell is dead and has no neighors,
+                // don't bother doing anything with it
+                if self.grid[i][j].state == 0 {
+                    continue;
+                }
 
-            // If the cell is alve, visit each neighbor and increment their
-            // internal "living neighbor" state
-            let is_alive = self.grid[i].is_alive();
+                // If the cell is alve, visit each neighbor and increment their
+                // internal "living neighbor" state
+                let is_alive = self.grid[i][j].is_alive();
 
-            if is_alive {
-                let neighbor_indicies = utils::get_neighbor_indicies(i, GRID_WIDTH, GRID_HEIGHT);
+                if is_alive {
+                    let neighbor_positions =
+                        utils::get_neighbor_positions(i, j, GRID_WIDTH, GRID_HEIGHT);
 
-                for neighbor_index in neighbor_indicies.list.iter() {
-                    match *neighbor_index {
-                        Some(index) => self.grid[index].increment_living_neighbor_count(),
-                        None => (),
+                    for pos in neighbor_positions.list.iter() {
+                        match *pos {
+                            Some((i, j)) => self.grid[i][j].increment_living_neighbor_count(),
+                            None => (),
+                        }
                     }
                 }
             }
@@ -55,26 +60,28 @@ impl World {
 
         // Second pass, set living/dead state
         for i in 0..self.grid.len() {
-            // If the cell is dead and has no neighors,
-            // don't bother doing anything with it
-            if self.grid[i].state == 0 {
-                continue;
+            for j in 0..self.grid[i].len() {
+                // If the cell is dead and has no neighors,
+                // don't bother doing anything with it
+                if self.grid[i][j].state == 0 {
+                    continue;
+                }
+
+                // Any live cell with two or three live neighbours survives.
+                // Any dead cell with three live neighbours becomes a live cell.
+                // All other live cells die in the next generation. Similarly, all other dead cells stay dead.
+                let is_alive = self.grid[i][j].is_alive();
+                let living_neighbors = self.grid[i][j].get_living_neighbor_count();
+
+                if is_alive && (living_neighbors < 2 || living_neighbors > 3) {
+                    self.grid[i][j].die();
+                } else if !is_alive && living_neighbors == 3 {
+                    self.grid[i][j].spawn();
+                }
+
+                // Set the living neighbor count back to 0
+                self.grid[i][j].reset_neighbor_count();
             }
-
-            // Any live cell with two or three live neighbours survives.
-            // Any dead cell with three live neighbours becomes a live cell.
-            // All other live cells die in the next generation. Similarly, all other dead cells stay dead.
-            let is_alive = self.grid[i].is_alive();
-            let living_neighbors = self.grid[i].get_living_neighbor_count();
-
-            if is_alive && (living_neighbors < 2 || living_neighbors > 3) {
-                self.grid[i].die();
-            } else if !is_alive && living_neighbors == 3 {
-                self.grid[i].spawn();
-            }
-
-            // Set the living neighbor count back to 0
-            self.grid[i].reset_neighbor_count();
         }
     }
 }

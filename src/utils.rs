@@ -1,43 +1,42 @@
-use crate::lib::NeighborIndexList;
+use crate::lib::NeighborPositionList;
 
 // Returns the indicies of *all* (living or dead) neighboring cells in the grid.
-pub fn get_neighbor_indicies(
-    index: usize,
+pub fn get_neighbor_positions(
+    row_idx: usize,
+    col_idx: usize,
     grid_width: usize,
     grid_height: usize,
-) -> NeighborIndexList {
-    let mut neighbors = NeighborIndexList::new();
+) -> NeighborPositionList {
+    let mut neighbors = NeighborPositionList::new();
 
-    let grid_area = grid_width * grid_height;
-
-    let is_left_edge = index % grid_width == 0;
-    let is_right_edge = index % grid_width == grid_width - 1;
-    let is_top_edge = index < grid_width;
-    let is_bottom_edge = index >= grid_area - grid_width;
+    let is_left_edge = col_idx == 0;
+    let is_right_edge = col_idx == grid_width - 1;
+    let is_top_edge = row_idx == 0;
+    let is_bottom_edge = row_idx == grid_height - 1;
 
     if !is_left_edge {
-        neighbors.insert(index - 1);
+        neighbors.insert((row_idx, col_idx - 1));
     }
     if !is_right_edge {
-        neighbors.insert(index + 1);
+        neighbors.insert((row_idx, col_idx + 1));
     }
     if !is_top_edge {
-        neighbors.insert(index - grid_width);
+        neighbors.insert((row_idx - 1, col_idx));
     }
     if !is_bottom_edge {
-        neighbors.insert(index + grid_width);
+        neighbors.insert((row_idx + 1, col_idx));
     }
     if !is_top_edge && !is_left_edge {
-        neighbors.insert(index - grid_width - 1);
+        neighbors.insert((row_idx - 1, col_idx - 1));
     }
     if !is_top_edge && !is_right_edge {
-        neighbors.insert(index - grid_width + 1);
+        neighbors.insert((row_idx - 1, col_idx + 1));
     }
     if !is_bottom_edge && !is_left_edge {
-        neighbors.insert(index + grid_width - 1);
+        neighbors.insert((row_idx + 1, col_idx - 1));
     }
     if !is_bottom_edge && !is_right_edge {
-        neighbors.insert(index + grid_width + 1);
+        neighbors.insert((row_idx + 1, col_idx + 1));
     }
 
     neighbors
@@ -48,41 +47,53 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_get_neighbor_indicies() {
+    fn test_get_neighbor_positions() {
         // Standard cell
-        let neighbors = get_neighbor_indicies(5, 4, 4).debug_collapse();
-        assert_eq!(neighbors, vec![0, 1, 2, 4, 6, 8, 9, 10]);
+        let neighbors = get_neighbor_positions(1, 1, 5, 4).debug_collapse();
+        assert_eq!(
+            neighbors,
+            vec![
+                (0, 0),
+                (0, 1),
+                (0, 2),
+                (1, 0),
+                (1, 2),
+                (2, 0),
+                (2, 1),
+                (2, 2)
+            ]
+        );
 
         // Top left corner cell
-        let neighbors = get_neighbor_indicies(0, 4, 4).debug_collapse();
-        assert_eq!(neighbors, vec![1, 4, 5]);
+        let neighbors = get_neighbor_positions(0, 0, 5, 4).debug_collapse();
+        assert_eq!(neighbors, vec![(0, 1), (1, 0), (1, 1)]);
 
         // Top right corner cell
-        let neighbors = get_neighbor_indicies(3, 4, 4).debug_collapse();
-        assert_eq!(neighbors, vec![2, 6, 7]);
+        let neighbors = get_neighbor_positions(0, 4, 5, 4).debug_collapse();
+        assert_eq!(neighbors, vec![(0, 3), (1, 3), (1, 4)]);
 
         // Bottom left corner cell
-        let neighbors = get_neighbor_indicies(12, 4, 4).debug_collapse();
-        assert_eq!(neighbors, vec![8, 9, 13]);
+        let neighbors = get_neighbor_positions(3, 0, 5, 4).debug_collapse();
+        assert_eq!(neighbors, vec![(2, 0), (2, 1), (3, 1)]);
 
         // Bottom right corner cell
-        let neighbors = get_neighbor_indicies(15, 4, 4).debug_collapse();
-        assert_eq!(neighbors, vec![10, 11, 14]);
+        let neighbors = get_neighbor_positions(3, 4, 5, 4).debug_collapse();
+        assert_eq!(neighbors, vec![(2, 3), (2, 4), (3, 3)]);
 
         // Top edge cell
-        let neighbors = get_neighbor_indicies(2, 4, 4).debug_collapse();
-        assert_eq!(neighbors, vec![1, 3, 5, 6, 7]);
+        let neighbors = get_neighbor_positions(0, 2, 5, 4).debug_collapse();
+        assert_eq!(neighbors, vec![(0, 1), (0, 3), (1, 1), (1, 2), (1, 3)]);
 
         // Bottom edge cell
-        let neighbors = get_neighbor_indicies(13, 4, 4).debug_collapse();
-        assert_eq!(neighbors, vec![8, 9, 10, 12, 14]);
+        let neighbors = get_neighbor_positions(3, 3, 5, 4).debug_collapse();
+        assert_eq!(neighbors, vec![(2, 2), (2, 3), (2, 4), (3, 2), (3, 4)]);
 
         // Left edge cell
-        let neighbors = get_neighbor_indicies(8, 4, 4).debug_collapse();
-        assert_eq!(neighbors, vec![4, 5, 9, 12, 13]);
+        let neighbors = get_neighbor_positions(2, 0, 5, 4).debug_collapse();
+        assert_eq!(neighbors, vec![(1, 0), (1, 1), (2, 1), (3, 0), (3, 1)]);
 
         // Right edge cell
-        let neighbors = get_neighbor_indicies(7, 4, 4).debug_collapse();
-        assert_eq!(neighbors, vec![2, 3, 6, 10, 11]);
+        let neighbors = get_neighbor_positions(1, 4, 5, 4).debug_collapse();
+        assert_eq!(neighbors, vec![(0, 3), (0, 4), (1, 3), (2, 3), (2, 4)]);
     }
 }
