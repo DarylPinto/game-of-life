@@ -1,4 +1,28 @@
 use crate::lib::NeighborPositionList;
+use crate::World;
+use crate::GRID_HEIGHT;
+use crate::GRID_WIDTH;
+use minifb::Window;
+use std::error::Error;
+
+pub fn draw(
+    window: &mut Window,
+    buffer: &mut Vec<u32>,
+    world: &World,
+) -> Result<(), Box<dyn Error>> {
+    for y in 0..GRID_HEIGHT {
+        for x in 0..GRID_WIDTH {
+            buffer[(y * GRID_WIDTH) + x] = match world.grid[y][x].is_alive() {
+                true => u32::MAX - ((x * y) as u32),
+                false => 0x00_212121,
+            }
+        }
+    }
+
+    window.update_with_buffer(&buffer, GRID_WIDTH, GRID_HEIGHT)?;
+
+    Ok(())
+}
 
 // Returns the indicies of *all* (living or dead) neighboring cells in the grid.
 pub fn get_neighbor_positions(

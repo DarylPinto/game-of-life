@@ -1,8 +1,11 @@
 use crate::lib::Cell;
+use crate::patterns::Pattern;
 use crate::utils;
 use crate::GRID_HEIGHT;
 use crate::GRID_WIDTH;
+use ca_formats::rle::Rle;
 use rand::prelude::*;
+use std::error::Error;
 
 #[derive(Debug)]
 pub struct World {
@@ -16,9 +19,19 @@ impl World {
         }
     }
 
+    pub fn clear(&mut self) {
+        for row in self.grid.iter_mut() {
+            for cell in row.iter_mut() {
+                cell.die();
+            }
+        }
+    }
+
     pub fn populate_randomly(&mut self, chance_of_life: f32) {
         let mut rng = thread_rng();
         let threshhold = (u8::MAX as f32 * chance_of_life) as u8;
+
+        self.clear();
 
         for row in self.grid.iter_mut() {
             for cell in row.iter_mut() {
@@ -28,6 +41,24 @@ impl World {
                 }
             }
         }
+    }
+
+    pub fn populate_from_pattern(&mut self, pattern: &Pattern) -> Result<(), Box<dyn Error>> {
+        self.clear();
+
+        let parsed_pattern = Rle::new(pattern.rle_string)?;
+
+        let cells = parsed_pattern
+            .map(|cell| cell.unwrap().position)
+            .collect::<Vec<_>>();
+
+        for c in cells.iter() {
+            let col = c.0 as usize + ((GRID_WIDTH - pattern.width) / 2);
+            let row = c.1 as usize + ((GRID_HEIGHT - pattern.height) / 2);
+            self.grid[row][col].spawn();
+        }
+
+        Ok(())
     }
 
     pub fn tick(&mut self) {
