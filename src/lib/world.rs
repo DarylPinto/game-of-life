@@ -56,7 +56,7 @@ impl World {
 
         for c in cells.iter() {
             let col = c.0 as usize + ((GRID_WIDTH - pattern.width) / 2);
-            let row = c.1 as usize + ((GRID_HEIGHT - pattern.height) / 2);
+            let row = c.1 as usize + GRID_HEIGHT - 5;
             self.grid[row][col].spawn();
         }
 
@@ -110,10 +110,15 @@ impl World {
                 let is_alive = self.grid[i][j].is_alive();
                 let living_neighbors = self.grid[i][j].get_living_neighbor_count();
 
-                if is_alive && (living_neighbors < 2 || living_neighbors > 3) {
-                    self.grid[i][j].die();
-                } else if !is_alive && living_neighbors == 3 {
+                if i + 1 < self.grid.len() && self.grid[i + 1][j].is_alive() {
                     self.grid[i][j].spawn();
+                } else {
+
+                    if is_alive && (living_neighbors < 2 || living_neighbors > 3) {
+                        self.grid[i][j].die();
+                    } else if !is_alive && living_neighbors == 3 {
+                        self.grid[i][j].spawn();
+                    }
                 }
 
                 // Set the living neighbor count back to 0

@@ -12,6 +12,13 @@ pub struct Pattern {
 pub fn get_patterns() -> Vec<Pattern> {
     vec![
         Pattern {
+            name: "Triangle",
+            width: 2,
+            height: 2,
+            scale: Scale::X4,
+            rle_string: "oo$oo!",
+        },
+        Pattern {
             name: "Glider",
             width: 3,
             height: 3,

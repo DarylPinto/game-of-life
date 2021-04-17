@@ -13,7 +13,7 @@ pub fn draw(
     for y in 0..GRID_HEIGHT {
         for x in 0..GRID_WIDTH {
             buffer[(y * GRID_WIDTH) + x] = match world.grid[y][x].is_alive() {
-                true => u32::MAX - ((x * y) as u32),
+                true => 0x00_FFFFFF,
                 false => 0x00_212121,
             }
         }
