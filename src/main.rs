@@ -84,11 +84,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
 
         // Allow drawing with the mouse if time is paused
-        if world.time_stopped {
+        if world.time_stopped && window.get_mouse_down(MouseButton::Left) {
             window.get_mouse_pos(MouseMode::Discard).map(|(x, y)| {
-                if window.get_mouse_down(MouseButton::Left) {
-                    world.grid[y as usize][x as usize].spawn();
-                }
+                world.grid[y as usize][x as usize].spawn();
             });
         }
     }
