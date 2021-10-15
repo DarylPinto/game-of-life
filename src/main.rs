@@ -52,6 +52,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Main loop
     window.limit_update_rate(Some(std::time::Duration::from_millis(TICK_RATE_MS)));
 
+    // Previous mouse position of the mouse while left click was held down
+    let mut prev_contiguous_mousedown_pos: Option<(isize, isize)> = None;
+
     while window.is_open() && !window.is_key_down(Key::Escape) {
         // Draw and advance forward in time
         utils::draw(&mut window, &mut buffer, &world)?;
@@ -84,10 +87,28 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
 
         // Allow drawing with the mouse if time is paused
-        if world.time_stopped && window.get_mouse_down(MouseButton::Left) {
-            window.get_mouse_pos(MouseMode::Discard).map(|(x, y)| {
-                world.grid[y as usize][x as usize].spawn();
-            });
+        if world.time_stopped {
+            if window.get_mouse_down(MouseButton::Left) {
+                window.get_mouse_pos(MouseMode::Clamp).map(|(x, y)| {
+                    // Spawning cells at the cursor position while the left
+                    // mouse button is held results in large gaps in the
+                    // drawing. This is because the mouse moves fast, but is
+                    // only "polled" at the tickrate of the window. To resolve
+                    // this, we draw line segments connecting each polled mouse
+                    // position.
+                    let current_mouse_pos = (x as isize, y as isize);
+                    let cells_to_spawn =
+                        utils::get_line_segment(prev_contiguous_mousedown_pos, current_mouse_pos);
+
+                    for cell in cells_to_spawn {
+                        world.grid[cell.1 as usize][cell.0 as usize].spawn();
+                    }
+
+                    prev_contiguous_mousedown_pos = Some(current_mouse_pos);
+                });
+            } else {
+                prev_contiguous_mousedown_pos = None;
+            }
         }
     }
 

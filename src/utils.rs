@@ -2,9 +2,12 @@ use crate::lib::NeighborPositionList;
 use crate::World;
 use crate::GRID_HEIGHT;
 use crate::GRID_WIDTH;
+use bresenham::Bresenham;
 use minifb::Window;
 use std::error::Error;
 
+/// Fill a framebuffer using cell data from `world`, then render that
+/// framebuffer to `window`
 pub fn draw(
     window: &mut Window,
     buffer: &mut Vec<u32>,
@@ -24,7 +27,19 @@ pub fn draw(
     Ok(())
 }
 
-// Returns the indicies of *all* (living or dead) neighboring cells in the grid.
+/// Get a line segment between two points. If first point is None,
+/// line segment will be only 1 pixel in length
+pub fn get_line_segment(p1: Option<(isize, isize)>, p2: (isize, isize)) -> Vec<(isize, isize)> {
+    let mut ret = vec![];
+    if let Some(p) = p1 {
+        let line = Bresenham::new(p, p2);
+        ret = line.collect();
+    }
+    ret.push(p2);
+    ret
+}
+
+/// Returns the indicies of *all* (living or dead) neighboring cells in the grid.
 pub fn get_neighbor_positions(
     row_idx: usize,
     col_idx: usize,
