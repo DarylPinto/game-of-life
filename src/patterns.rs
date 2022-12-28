@@ -9,8 +9,8 @@ pub struct Pattern {
     pub rle_string: &'static str,
 }
 
-pub fn get_patterns() -> Vec<Pattern> {
-    vec![
+pub fn get_patterns() -> &'static [Pattern] {
+    &[
         Pattern {
             name: "Glider",
             width: 3,
