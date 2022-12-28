@@ -6,6 +6,7 @@ mod utils;
 use lib::World;
 use minifb::Scale;
 use minifb::{Key, KeyRepeat, Menu, MouseButton, MouseMode, Window, WindowOptions};
+use patterns::PATTERNS;
 use std::error::Error;
 
 // Configuration
@@ -21,7 +22,6 @@ const GUI_SCALE: Scale = Scale::X4;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut world = World::new();
-    let patterns = patterns::get_patterns();
 
     world.populate_randomly(CHANCE_OF_LIFE);
 
@@ -41,7 +41,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Window Menus
     let mut menu = Menu::new("Patterns")?;
 
-    for (i, pattern) in patterns.iter().enumerate() {
+    for (i, pattern) in PATTERNS.iter().enumerate() {
         menu.add_item(pattern.name, i + 1).build();
     }
 
@@ -77,11 +77,11 @@ fn main() -> Result<(), Box<dyn Error>> {
                 return;
             }
 
-            let (_, pattern) = patterns
+            let (_, pattern) = PATTERNS
                 .iter()
                 .enumerate()
                 .find(|(i, _)| *i + 1 == menu_id)
-                .unwrap_or_else(|| (0, &patterns[0]));
+                .unwrap_or_else(|| (0, &PATTERNS[0]));
 
             match world.populate_from_pattern(pattern) {
                 Err(e) => panic!("Error loading from pattern: {:?}", e),
