@@ -16,7 +16,7 @@ const GRID_HEIGHT: usize = 200;
 
 const CHANCE_OF_LIFE: f32 = 0.125;
 
-const TICK_RATE_MS: u64 = 50;
+const FRAMES_PER_SECOND: u64 = 40;
 const GUI_SCALE: Scale = Scale::X4;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -50,15 +50,23 @@ fn main() -> Result<(), Box<dyn Error>> {
     window.add_menu(&menu);
 
     // Main loop
-    window.limit_update_rate(Some(std::time::Duration::from_millis(TICK_RATE_MS)));
+    window.limit_update_rate(Some(std::time::Duration::from_millis(
+        1000 / FRAMES_PER_SECOND,
+    )));
 
     // Previous mouse position of the mouse while left click was held down
     let mut prev_contiguous_mousedown_pos: Option<(isize, isize)> = None;
+    let mut frame: u8 = 0;
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
-        // Draw and advance forward in time
+        // Draw every frame
+        frame = frame.wrapping_add(1);
         utils::draw(&mut window, &mut buffer, &world)?;
-        world.tick();
+
+        // Step forward in time every other frame
+        if frame % 2 == 0 {
+            world.tick();
+        }
 
         // Menu handler
         window.is_menu_pressed().map(|menu_id| {
