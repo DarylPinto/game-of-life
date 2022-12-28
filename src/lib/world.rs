@@ -1,8 +1,6 @@
 use crate::lib::Cell;
 use crate::patterns::Pattern;
 use crate::utils;
-use crate::GRID_HEIGHT;
-use crate::GRID_WIDTH;
 use ca_formats::rle::Rle;
 use rand::prelude::*;
 use std::error::Error;
@@ -10,13 +8,17 @@ use std::error::Error;
 #[derive(Debug)]
 pub struct World {
     pub grid: Vec<Vec<Cell>>,
+    pub width: usize,
+    pub height: usize,
     pub time_stopped: bool,
 }
 
 impl World {
-    pub fn new() -> Self {
+    pub fn new(width: usize, height: usize) -> Self {
         Self {
-            grid: vec![vec![Cell::default(); GRID_WIDTH]; GRID_HEIGHT],
+            grid: vec![vec![Cell::default(); width]; height],
+            width,
+            height,
             time_stopped: false,
         }
     }
@@ -55,8 +57,8 @@ impl World {
             .collect::<Vec<_>>();
 
         for c in cells.iter() {
-            let col = c.0 as usize + ((GRID_WIDTH - pattern.width) / 2);
-            let row = c.1 as usize + ((GRID_HEIGHT - pattern.height) / 2);
+            let col = c.0 as usize + ((self.width - pattern.width) / 2);
+            let row = c.1 as usize + ((self.height - pattern.height) / 2);
             self.grid[row][col].spawn();
         }
 
@@ -83,7 +85,7 @@ impl World {
 
                 if is_alive {
                     let neighbor_positions =
-                        utils::get_neighbor_positions(i, j, GRID_WIDTH, GRID_HEIGHT);
+                        utils::get_neighbor_positions(i, j, self.width, self.height);
 
                     for pos in neighbor_positions.list.iter() {
                         match *pos {

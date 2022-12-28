@@ -6,42 +6,43 @@ mod utils;
 use lib::World;
 use minifb::Scale;
 use minifb::{Key, KeyRepeat, Menu, MouseButton, MouseMode, Window, WindowOptions};
-use std::error::Error;
+use patterns::PATTERNS;
+use std::{error::Error, time::Duration};
 
 // Configuration
 const WINDOW_TITLE: &str = "Game of Life";
 
-const GRID_WIDTH: usize = 300;
-const GRID_HEIGHT: usize = 200;
+const INITIAL_WORLD_WIDTH: usize = 300;
+const INITIAL_WORLD_HEIGHT: usize = 200;
 
 const CHANCE_OF_LIFE: f32 = 0.125;
 
 const FRAMES_PER_SECOND: u64 = 40;
+const UPDATE_RATE: Duration = Duration::from_millis(1000 / FRAMES_PER_SECOND);
 const GUI_SCALE: Scale = Scale::X4;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let mut world = World::new();
-    let patterns = patterns::get_patterns();
+    let mut world = World::new(INITIAL_WORLD_WIDTH, INITIAL_WORLD_HEIGHT);
 
     world.populate_randomly(CHANCE_OF_LIFE);
 
     // Main Window
     let mut window = Window::new(
         WINDOW_TITLE,
-        GRID_WIDTH,
-        GRID_HEIGHT,
+        INITIAL_WORLD_WIDTH,
+        INITIAL_WORLD_HEIGHT,
         WindowOptions {
             scale: GUI_SCALE,
             ..WindowOptions::default()
         },
     )?;
 
-    let mut buffer: Vec<u32> = vec![0; GRID_WIDTH * GRID_HEIGHT];
+    let mut buffer: Vec<u32> = vec![0; INITIAL_WORLD_WIDTH * INITIAL_WORLD_HEIGHT];
 
     // Window Menus
     let mut menu = Menu::new("Patterns")?;
 
-    for (i, pattern) in patterns.iter().enumerate() {
+    for (i, pattern) in PATTERNS.iter().enumerate() {
         menu.add_item(pattern.name, i + 1).build();
     }
 
@@ -50,9 +51,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     window.add_menu(&menu);
 
     // Main loop
-    window.limit_update_rate(Some(std::time::Duration::from_millis(
-        1000 / FRAMES_PER_SECOND,
-    )));
+    window.limit_update_rate(Some(UPDATE_RATE));
 
     // Previous mouse position of the mouse while left click was held down
     let mut prev_contiguous_mousedown_pos: Option<(isize, isize)> = None;
@@ -68,26 +67,42 @@ fn main() -> Result<(), Box<dyn Error>> {
             world.tick();
         }
 
-        // Menu handler
-        window.is_menu_pressed().map(|menu_id| {
+        // When a pattern is selected from the menu
+        if let Some(menu_id) = window.is_menu_pressed() {
+            // Pause the simulation
             world.time_stopped = false;
 
+            // First menu item is the same as initial load (random cells)
             if menu_id == 0 {
                 world.populate_randomly(CHANCE_OF_LIFE);
-                return;
+            } else {
+                // Find the pattern selected by the user
+                let (_, pattern) = PATTERNS
+                    .iter()
+                    .enumerate()
+                    .find(|(i, _)| *i + 1 == menu_id)
+                    .unwrap_or_else(|| (0, &PATTERNS[0]));
+
+                // Resize the frame buffer to fit the new pattern
+                buffer.resize(pattern.world_width * pattern.world_height, 0);
+
+                // Create a new world & window with the width, height and scaling of the selected pattern
+                window = Window::new(
+                    WINDOW_TITLE,
+                    pattern.world_width,
+                    pattern.world_height,
+                    WindowOptions {
+                        scale: pattern.scale,
+                        ..WindowOptions::default()
+                    },
+                )?;
+                window.limit_update_rate(Some(UPDATE_RATE));
+                world = World::new(pattern.world_width, pattern.world_height);
+
+                // Populate the world from the pattern RLE & start the simulation
+                world.populate_from_pattern(pattern)?;
             }
-
-            let (_, pattern) = patterns
-                .iter()
-                .enumerate()
-                .find(|(i, _)| *i + 1 == menu_id)
-                .unwrap_or_else(|| (0, &patterns[0]));
-
-            match world.populate_from_pattern(pattern) {
-                Err(e) => panic!("Error loading from pattern: {:?}", e),
-                _ => (),
-            };
-        });
+        };
 
         // Allow pausing time with spacebar
         if window.is_key_pressed(Key::Space, KeyRepeat::No) {

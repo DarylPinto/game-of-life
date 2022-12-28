@@ -1,7 +1,5 @@
 use crate::lib::NeighborPositionList;
 use crate::World;
-use crate::GRID_HEIGHT;
-use crate::GRID_WIDTH;
 use bresenham::Bresenham;
 use minifb::Window;
 use std::error::Error;
@@ -13,16 +11,16 @@ pub fn draw(
     buffer: &mut Vec<u32>,
     world: &World,
 ) -> Result<(), Box<dyn Error>> {
-    for y in 0..GRID_HEIGHT {
-        for x in 0..GRID_WIDTH {
-            buffer[(y * GRID_WIDTH) + x] = match world.grid[y][x].is_alive() {
+    for y in 0..world.height {
+        for x in 0..world.width {
+            buffer[(y * world.width) + x] = match world.grid[y][x].is_alive() {
                 true => u32::MAX - ((x * y) as u32),
                 false => 0x00_212121,
-            }
+            };
         }
     }
 
-    window.update_with_buffer(&buffer, GRID_WIDTH, GRID_HEIGHT)?;
+    window.update_with_buffer(&buffer, world.width, world.height)?;
 
     Ok(())
 }
